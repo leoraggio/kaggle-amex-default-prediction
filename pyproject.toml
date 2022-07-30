@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "kaggle-amex-default-prediction"
+version = "0.1.0"
+description = ""
+authors = ["Leonardo Raggio <leoraggio@cora.com.br>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+scikit-learn = "^1.1.1"
+pandas = "^1.4.3"
+modin = {extras = ["all"], version = "^0.15.2"}
+
+[tool.poetry.dev-dependencies]
+black = "^22.6.0"
+flake8 = "^4.0.1"
+mypy = "^0.971"
+jupyterlab = "^3.4.4"
+kaggle = "^1.5.12"
+matplotlib = "^3.5.2"
+seaborn = "^0.11.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
