@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Jetbrains
+.idea/
+
+# Large data files
+data/
+
 # C extensions
 *.so
 
