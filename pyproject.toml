@@ -9,6 +9,7 @@ python = "^3.9"
 scikit-learn = "^1.1.1"
 pandas = "^1.4.3"
 modin = {extras = ["all"], version = "^0.15.2"}
+gcsfs = "^2022.7.1"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
