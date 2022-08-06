@@ -8,6 +8,7 @@ __pycache__/
 
 # Large data files
 data/
+Models/
 
 # C extensions
 *.so
