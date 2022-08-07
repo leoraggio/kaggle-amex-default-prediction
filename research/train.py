@@ -24,7 +24,7 @@ from tqdm.auto import tqdm
 
 class CFG:
     input_dir = "/content/data/"
-    seed = 42
+    seed = 2022
     n_folds = 5
     target = "target"
     boosting_type = "dart"
