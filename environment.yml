@@ -18,3 +18,4 @@ dependencies:
     - lightgbm==3.3.2
     - xgboost==1.6.1
     - google-api-python-client==2.56.0
+    - black==22.6.0
