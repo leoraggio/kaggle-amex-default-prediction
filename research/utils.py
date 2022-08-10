@@ -1,4 +1,7 @@
 import logging
+from pathlib import Path
+
+PROJECT_FOLDER = Path(__file__).parents[1]
 
 
 def create_logger(name: str) -> logging.Logger:

@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
 
-from research.utils import create_logger
+from research.utils import PROJECT_FOLDER, create_logger
 
 logger = create_logger("dataprep")
 
@@ -161,13 +161,9 @@ def preprocess_data(data_bunch: DataBunch) -> None:
 
     # Save files
     logger.info("Saving train_data...")
-    train.to_parquet(
-        "gs://leoraggio-kaggle/amex-default-prediction/data/processed/train_data.parquet"
-    )
+    train.to_parquet(PROJECT_FOLDER / "data/processed/train_data.parquet")
     logger.info("Saving test data")
-    test.to_parquet(
-        "gs://leoraggio-kaggle/amex-default-prediction/data/processed/test_data.parquet"
-    )
+    test.to_parquet(PROJECT_FOLDER / "data/processed/test_data.parquet")
 
 
 if __name__ == "__main__":
