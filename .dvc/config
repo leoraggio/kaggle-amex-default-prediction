@@ -1,2 +1,5 @@
 [core]
     autostage = true
+    remote = gcloud
+['remote "gcloud"']
+    url = gs://leoraggio-kaggle/amex-default-prediction/dvc
