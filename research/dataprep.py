@@ -1,8 +1,17 @@
+import os
 from typing import List
 
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 from tqdm import tqdm
+
+from research.utils import create_logger
+
+logger = create_logger("dataprep")
+
+BUCKET = "gs://leoraggio-kaggle"
+COMPETITION = "amex-default-prediction"
 
 
 class DataBunch:
@@ -89,41 +98,90 @@ def create_agg_features(
     return train_num_agg.merge(train_cat_agg, how="inner", on="customer_ID")
 
 
-def preprocess_train_data(data_bunch: DataBunch) -> None:
-    print("Starting training feature engineer...")
+def preprocess_data(data_bunch: DataBunch) -> None:
+    logger.info("Starting feature engineer...")
 
+    logger.info("Creating aggregate features on training data...")
     train = create_agg_features(
         data=data_bunch.train_data,
         num_features=data_bunch.num_features,
         cat_features=data_bunch.cat_features,
     )
 
+    logger.info("Getting differences on training data...")
     train = train.merge(
         get_difference(data_bunch.train_data, data_bunch.num_features),
         how="inner",
         on="customer_ID",
     ).merge(data_bunch.train_labels, how="inner", on="customer_ID")
 
-    train.to_parquet(
-        "gs://leoraggio-kaggle/amex-default-prediction/data/processed/train_data.parquet"
-    )
-
-
-def preprocess_test_data(data_bunch: DataBunch) -> None:
-    print("Starting test feature engineer...")
-
+    # Feature engineer on test data
+    logger.info("Creating aggregate features on test data...")
     test = create_agg_features(
         data=data_bunch.test_data,
         num_features=data_bunch.num_features,
         cat_features=data_bunch.cat_features,
     )
 
+    logger.info("Getting differences on test data...")
     test = test.merge(
         get_difference(data_bunch.test_data, data_bunch.num_features),
         how="inner",
         on="customer_ID",
     )
 
+    # Handle categorical features
+    logger.info("Encoding categorical features...")
+    cat_features = [f"{cf}_last" for cf in data_bunch.cat_features]
+    for cat_col in cat_features:
+        encoder = LabelEncoder()
+        train[cat_col] = encoder.fit_transform(train[cat_col])
+        test[cat_col] = encoder.transform(test[cat_col])
+
+    # Round last float features to 2 decimal place
+    logger.info("Creating rounded features...")
+    num_cols = list(
+        train.dtypes[(train.dtypes == "float32") | (train.dtypes == "float64")].index
+    )
+    num_cols = [col for col in num_cols if "last" in col]
+    for col in num_cols:
+        train[col + "_round2"] = train[col].round(2)
+        test[col + "_round2"] = test[col].round(2)
+
+    # Get the difference between last and mean
+    logger.info("Getting the difference between last and mean features...")
+    num_cols = [col for col in train.columns if "last" in col]
+    num_cols = [col[:-5] for col in num_cols if "round" not in col]
+    for col in num_cols:
+        try:
+            train[f"{col}_last_mean_diff"] = train[f"{col}_last"] - train[f"{col}_mean"]
+            test[f"{col}_last_mean_diff"] = test[f"{col}_last"] - test[f"{col}_mean"]
+        except:
+            pass
+
+    # Save files
+    logger.info("Saving train_data...")
+    train.to_parquet(
+        "gs://leoraggio-kaggle/amex-default-prediction/data/processed/train_data.parquet"
+    )
+    logger.info("Saving test data")
     test.to_parquet(
         "gs://leoraggio-kaggle/amex-default-prediction/data/processed/test_data.parquet"
     )
+
+
+if __name__ == "__main__":
+    logger.info("Loading train data...")
+    train_data = pd.read_parquet(
+        os.path.join(BUCKET, COMPETITION, "data/optimized/train.parquet")
+    )
+    train_labels = pd.read_csv(
+        os.path.join(BUCKET, COMPETITION, "data/raw/train_labels.csv")
+    )
+    logger.info("Loading test data...")
+    test_data = pd.read_parquet(
+        os.path.join(BUCKET, COMPETITION, "data/optimized/test.parquet")
+    )
+
+    data_bunch = DataBunch(train_data, train_labels, test_data)
+    preprocess_data(data_bunch)
