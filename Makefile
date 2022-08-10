@@ -13,7 +13,7 @@ push-data-to-s3:
 	@./scripts/push_data_to_s3.sh
 .PHONY: push-data-to-s3
 
-dataprep:
+features:
 	python -m research.dataprep
 
 update-env:
