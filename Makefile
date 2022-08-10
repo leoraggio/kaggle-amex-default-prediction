@@ -12,3 +12,6 @@ unzip-data:
 push-data-to-s3:
 	@./scripts/push_data_to_s3.sh
 .PHONY: push-data-to-s3
+
+update-env:
+	umask 0002 && /opt/conda/bin/mamba env update -n amex -f environment.yml
