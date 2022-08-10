@@ -15,8 +15,9 @@ dependencies:
   - jupyterlab=3.4.4
   - dvc-gs=2.16.0
   - pip:
-    - kaggle==1.5.12
-    - lightgbm==3.3.2
-    - xgboost==1.6.1
-    - google-api-python-client==2.56.0
-    - black==22.6.0
+      - kaggle==1.5.12
+      - lightgbm==3.3.2
+      - xgboost==1.6.1
+      - optuna==2.10.1
+      - google-api-python-client==2.56.0
+      - black==22.6.0
